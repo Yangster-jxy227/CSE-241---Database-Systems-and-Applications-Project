@@ -6,7 +6,13 @@ import java.util.Random;
 import java.sql.Timestamp;
 
 public class DBController{
-    static final String DB_url = "jdbc:oracle:thin:@//rocordb01.cse.lehigh.edu:1522/cse241pdb";
+
+    ////////////////////////////////////////////
+    ////----Refactoring url for postgres----////
+    ////////////////////////////////////////////
+    static final String DB_url = "jdbc:postgresql://localhost:5432/cse241pdb";
+    //static final String DB_url = "jdbc:oracle:thin:@//rocordb01.cse.lehigh.edu:1522/cse241pdb";
+
     Connection conn;
     String DB_username;
     char[] DB_password;

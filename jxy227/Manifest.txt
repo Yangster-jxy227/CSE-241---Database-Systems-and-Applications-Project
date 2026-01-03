@@ -1,2 +1,2 @@
-Main-class: App
-Class-Path: ojdbc11.jar
+Main-Class: App
+Class-Path: postgresql-42.7.8.jar
