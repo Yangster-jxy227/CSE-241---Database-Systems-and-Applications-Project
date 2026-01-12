@@ -1,18 +1,18 @@
 //Interface for customer
-import java.io.Console;
+//import java.io.Console;
 import java.util.Scanner;
 
 public class UIcustomer{
     User thisUser; 
-    Console console;
+    //Console console;
     Scanner scan;
     DBController db;
     DBcatalog db_cat;
 
     //Constructor
-    UIcustomer(User fetchedUser, Console appConsole, Scanner appScan, DBController db, DBcatalog db_cat){
+    UIcustomer(User fetchedUser, Scanner appScan, DBController db, DBcatalog db_cat){
         this.thisUser = fetchedUser;
-        this.console = appConsole;
+        //this.console = appConsole;
         this.scan = appScan;
         this.db = db;
         this.db_cat = db_cat;

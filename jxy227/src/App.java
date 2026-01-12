@@ -1,5 +1,5 @@
 //Java
-import java.io.Console;
+//----import java.io.Console;----//
 import java.util.Scanner;
 //import java.util.*;
 //main 
@@ -9,7 +9,7 @@ public class App{
 
     public static void main(String[] args){
         //Try Catch for console failure
-        Console console = System.console();
+        //----Console console = System.console();----//
         Scanner scan = new Scanner(System.in);
 
         DBController db = new DBController();
@@ -19,7 +19,7 @@ public class App{
 
         //Connecting to Database - need to build loop to allow retries
         try{
-            db.connect(console);
+            db.connect(scan);
 
         } catch(Exception e){
             System.out.println("Error - Closing Database Connection");
@@ -32,19 +32,19 @@ public class App{
 
         do{
             //Prompting user to login LUShop - loops within function, returns the userID
-            thisUser = loginPrompt(console, db, scan);
+            thisUser = loginPrompt(db, scan);
 
-            DBcatalog db_cat = new DBcatalog(thisUser, console, scan, db);
+            DBcatalog db_cat = new DBcatalog(thisUser, scan, db);
 
             //After loginPromt verifies user exists, collects rest of the data from the user
 
             //Calls next UI
             if(thisUser.getType().equals("manager")){
-                UImanager m_ui = new UImanager(thisUser, console, scan, db, db_cat);
+                UImanager m_ui = new UImanager(thisUser, scan, db, db_cat);
                 db_cat.fetchUImanager(m_ui);
                 m_ui.mainScreen();
             }else{
-                UIcustomer c_ui = new UIcustomer(thisUser, console, scan, db, db_cat);
+                UIcustomer c_ui = new UIcustomer(thisUser, scan, db, db_cat);
                 db_cat.fetchUIcustomer(c_ui);
                 c_ui.mainScreen();
             }
@@ -55,7 +55,7 @@ public class App{
 
     ////----Handles App Logins----////
     //No seperate entity table for manager or user - loop to allow retries
-    public static User loginPrompt(Console console, DBController db, Scanner scan){
+    public static User loginPrompt(DBController db, Scanner scan){
         User thisUser = new User();
         int input;          //tracks user input
         String userType;    //tracks if user is customer, manager, or business
@@ -90,7 +90,7 @@ public class App{
                 case 1:
                     System.out.println("Individual Selected\n");
                     db.displayAllIndividuals();
-                    id = determineUID(console, db, true, thisUser);
+                    id = determineUID(scan, db, true, thisUser);
                     //userType = db.fetchUserRole(db.conn, email, decodedPW,);
                     if(id != 0 && id != -1){
                         thisUser.setID(id);
@@ -105,7 +105,7 @@ public class App{
                 case 2:
                     System.out.println("Business Selected\n");
                     db.displayAllBusinesses();
-                    id = determineUID(console, db, false, thisUser);  
+                    id = determineUID(scan, db, false, thisUser);  
                     userType = "Business";
                     if(id != 0 && id != -1){
                         System.out.println("User is a business\n");
@@ -129,10 +129,18 @@ public class App{
         }
     }
 
-    public static int determineUID(Console console, DBController db, boolean individual, User thisUser){
-        String email = console.readLine("Enter Email: ");
-        char[] password = console.readPassword("Enter Password: ");
-        String decodedPW = String.valueOf(password);
+    public static int determineUID(Scanner scan, DBController db, boolean individual, User thisUser){
+        System.out.println("Enter Email: ");
+        String email = scan.nextLine();
+
+        System.out.println("Enter Password: ");
+        String decodedPW = scan.nextLine();
+
+        ///////////////////////////////////////////////////////////////////////
+        //----String email = console.readLine("Enter Email: ");----////////////
+        //----char[] password = console.readPassword("Enter Password: ");----//
+        //----String decodedPW = String.valueOf(password);----/////////////////
+        ///////////////////////////////////////////////////////////////////////
 
         if(individual==true){
             thisUser.setType(db.fetchUserRole(db.conn, email, decodedPW));

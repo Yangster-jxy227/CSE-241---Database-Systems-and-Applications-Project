@@ -1,5 +1,5 @@
 //Handles catalog interface info
-import java.io.Console;
+//import java.io.Console;
 import java.util.Scanner;
 import java.sql.*; 
 import java.util.List;
@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public class DBcatalog{
     User thisUser; 
-    Console console;
+    //Console console;
     Scanner scan;
     DBController db;
     Connection conn;
@@ -21,9 +21,9 @@ public class DBcatalog{
     List<Object> purchaseCache = new ArrayList<>();
 
     //Constructor
-    DBcatalog(User fetchedUser, Console appConsole, Scanner appScan, DBController db){
+    DBcatalog(User fetchedUser, Scanner appScan, DBController db){
         this.thisUser = fetchedUser;
-        this.console = appConsole;
+        //this.console = appConsole;
         this.scan = appScan;
         this.db = db;
         this.conn = db.getConnection();
@@ -273,7 +273,8 @@ public class DBcatalog{
             //Verify Stock is greater than Quantity
 
             //Checking if the product is real and what the user selected earlier
-            int productVerification = verifyProduct(input);
+            int num = Integer.parseInt(input);
+            int productVerification = verifyProduct(num);
 
             if(productVerification != 0){
                 if(goodType == 1 && goodType != productVerification){
@@ -285,8 +286,8 @@ public class DBcatalog{
                     goodSelection(2);
                 }
                 System.out.println("\nProduct ID matches Good type choosen");
-                purchaseCache.add(input);
-                db.fetchProductInfo(purchaseCache, input, goodType, 1); //1 is quantity, change later
+                purchaseCache.add(num);
+                db.fetchProductInfo(purchaseCache, num, goodType, 1); //1 is quantity, change later
                 break;
             }
         } 
@@ -647,7 +648,7 @@ public class DBcatalog{
     }
 
     //true if item exists
-    public int verifyProduct(String id){
+    public int verifyProduct(int id){
         //int pID = Integer.parseInt(id);
         boolean item = false;
         boolean service = false;
@@ -656,7 +657,7 @@ public class DBcatalog{
         String SQL_statement = "SELECT COUNT(*) FROM item WHERE product_ID = ?";
         try{
             PreparedStatement SQLproduct = conn.prepareStatement(SQL_statement);
-            SQLproduct.setString(1, id);
+            SQLproduct.setInt(1, id);
 
             ResultSet countSQL = SQLproduct.executeQuery();
 
@@ -682,7 +683,7 @@ public class DBcatalog{
         SQL_statement = "SELECT COUNT(*) FROM service WHERE product_ID = ?";
         try{
             PreparedStatement SQLproduct = conn.prepareStatement(SQL_statement);
-            SQLproduct.setString(1, id);
+            SQLproduct.setInt(1, id);
 
             ResultSet countSQL = SQLproduct.executeQuery();
 
@@ -728,7 +729,7 @@ public class DBcatalog{
             PreparedStatement SQLcc = conn.prepareStatement(SQL_statement);
             SQLcc.setString(1, cardNum);
             SQLcc.setString(2, securityCode);
-            SQLcc.setString(3, Integer.toString(thisUser.getID()));
+            SQLcc.setInt(3, thisUser.getID());
 
             ResultSet countSQL = SQLcc.executeQuery();
 
@@ -763,7 +764,7 @@ public class DBcatalog{
             PreparedStatement SQLcc = conn.prepareStatement(SQL_statement);
             SQLcc.setString(1, cardNum);
             SQLcc.setString(2, securityCode);
-            SQLcc.setString(3, Integer.toString(thisUser.getID()));
+            SQLcc.setInt(3, thisUser.getID());
 
             ResultSet countSQL = SQLcc.executeQuery();
 
@@ -798,7 +799,7 @@ public class DBcatalog{
             PreparedStatement SQLba = conn.prepareStatement(SQL_statement);
             SQLba.setString(1, routingID);
             SQLba.setString(2, bankName);
-            SQLba.setString(3, Integer.toString(thisUser.getID()));
+            SQLba.setInt(3, thisUser.getID());
 
             ResultSet countSQL = SQLba.executeQuery();
 
@@ -832,7 +833,7 @@ public class DBcatalog{
             PreparedStatement SQLcc = conn.prepareStatement(SQL_statement);
             SQLcc.setString(1, routingID);
             SQLcc.setString(2, bankName);
-            SQLcc.setString(3, Integer.toString(thisUser.getID()));
+            SQLcc.setInt(3, thisUser.getID());
 
             ResultSet countSQL = SQLcc.executeQuery();
 
@@ -862,7 +863,7 @@ public class DBcatalog{
 
     ////----DB Purchase----////
     public int createPurchase(){
-        String productID = (String) (purchaseCache.get(0));
+        int productID = (int) (purchaseCache.get(0));
         double price  = (double) purchaseCache.get(2);
         int quantity     = (int) purchaseCache.get(3);
         int transactionID = -1;
@@ -870,12 +871,12 @@ public class DBcatalog{
         String SQL_statement = "INSERT INTO purchase (Price, Amount, Customer_ID, Product_ID) VALUES (?, ?, ?, ?)";
 
         try{
-            PreparedStatement SQLpurchase = conn.prepareStatement(SQL_statement, new String[] {"TRANSACTION_ID"});
+            PreparedStatement SQLpurchase = conn.prepareStatement(SQL_statement, Statement.RETURN_GENERATED_KEYS);
 
             SQLpurchase.setDouble(1, price);                                   
             SQLpurchase.setInt(2, quantity);        
-            SQLpurchase.setString(3, Integer.toString(thisUser.getID()));        
-            SQLpurchase.setString(4, productID);                        
+            SQLpurchase.setInt(3, thisUser.getID());        
+            SQLpurchase.setInt(4, productID);                        
 
             int rows = SQLpurchase.executeUpdate();
 
@@ -936,7 +937,7 @@ public class DBcatalog{
 
             SQLpurchase.setInt(1, transactionID);                                   
             SQLpurchase.setString(2, plan);             
-            SQLpurchase.setString(3, Integer.toString(thisUser.getID()));        
+            SQLpurchase.setInt(3, thisUser.getID());        
 
             int rows = SQLpurchase.executeUpdate();
 
@@ -961,7 +962,7 @@ public class DBcatalog{
             PreparedStatement SQLpurchase = conn.prepareStatement(SQL_statement);
 
             SQLpurchase.setInt(1, transactionID);                                                
-            SQLpurchase.setString(2, Integer.toString(thisUser.getID()));    
+            SQLpurchase.setInt(2, thisUser.getID());    
             SQLpurchase.setString(3, routingID); 
             SQLpurchase.setString(4, bankName);     
 

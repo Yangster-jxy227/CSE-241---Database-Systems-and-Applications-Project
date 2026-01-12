@@ -5,6 +5,14 @@
   Final Project
 =================
 
+=====================================
+Refactored from Oracle to Postgres
+due to losing access to Lehigh's 
+Oracle Database after end of Class.
+Functionalities largely same, but
+password no longer hidden when typing
+=====================================
+
 Interfaces:
     Database Login: Use jxy227 and Oracle password to login to the database
         - Connects to Database

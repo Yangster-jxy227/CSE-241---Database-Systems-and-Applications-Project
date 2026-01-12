@@ -15,7 +15,7 @@ public class DBController{
 
     Connection conn;
     String DB_username;
-    char[] DB_password;
+    String DB_password;
     boolean connected;
 
     //Constructor
@@ -29,21 +29,27 @@ public class DBController{
     /**
      * Connects to the Database
      */
-    public void connect(Console console){
+    public void connect(Scanner scan){
         //Scanner in = new Scanner(System.in);
         
         while(connected == false){
             try{
                 //Opens Console to provide secure input
                 //Console console = System.console();
-                if (console == null) {
-                    System.err.println("No console available");
+                if (scan == null) {
+                    System.err.println("No scanner available");
                     System.exit(1);
                 }
 
                 //Prompts User for Environment Variables to connect to Database
-                DB_username = console.readLine("Enter Oracle user id: ");
-                DB_password = console.readPassword("Enter your Oracle password: ");
+                //----DB_username = console.readLine("Enter Postgres user id: ");----//
+                //----DB_password = console.readPassword("Enter your Postgres password: ");----//
+
+                System.out.println("Enter Postgres user id: ");
+                DB_username = scan.nextLine();
+
+                System.out.println("Enter your Postgres password: ");
+                DB_password = scan.nextLine();
 
 
                 //Opens Connection to Lehigh Database
@@ -240,7 +246,7 @@ public class DBController{
 
         try{
             PreparedStatement SQLRole = conn.prepareStatement(SQL_statement);
-            SQLRole.setString(1, Integer.toString(thisUser.getID()));
+            SQLRole.setInt(1, thisUser.getID());
 
             ResultSet foundID = SQLRole.executeQuery();
 
@@ -260,11 +266,11 @@ public class DBController{
 
     ////----Purchase History----////
     public void fetchUserPurchases(User thisUser){
-        String SQL_statement = "SELECT transaction_ID, name, vendor, price, amount FROM Purchase natural join Goods WHERE customer_ID = ? ORDER BY purchase_date";
+        String SQL_statement = "SELECT p.transaction_ID, g.name, g.vendor, g.price, p.amount FROM Purchase p JOIN Goods g ON p.product_ID = g.product_ID WHERE p.customer_ID = ? ORDER BY p.purchase_date";
 
         try{
             PreparedStatement SQLRole = conn.prepareStatement(SQL_statement);
-            SQLRole.setString(1, Integer.toString(thisUser.getID()));
+            SQLRole.setInt(1, thisUser.getID());
 
             ResultSet foundRole = SQLRole.executeQuery();
 
@@ -299,7 +305,7 @@ public class DBController{
         String SQL_statement = "INSERT INTO goods (price, name, vendor) VALUES (?,?,?)";
         
         try{
-            PreparedStatement SQLba = conn.prepareStatement(SQL_statement, new String[] {"PRODUCT_ID"});
+            PreparedStatement SQLba = conn.prepareStatement(SQL_statement, Statement.RETURN_GENERATED_KEYS);
             double priceDouble = Double.parseDouble(price);
             SQLba.setDouble(1, priceDouble);
             SQLba.setString(2, name);
@@ -366,7 +372,7 @@ public class DBController{
 
         try{
             PreparedStatement SQLcc = conn.prepareStatement(SQL_statement);
-            SQLcc.setString(1, Integer.toString(thisUser.getID()));
+            SQLcc.setInt(1, thisUser.getID());
 
             ResultSet foundCC = SQLcc.executeQuery();
 
@@ -405,7 +411,7 @@ public class DBController{
             SQLcc.setInt(2, scode);
             SQLcc.setString(3, net);
             SQLcc.setString(4, interest);
-            SQLcc.setString(5, Integer.toString(thisUser.getID()));
+            SQLcc.setInt(5, thisUser.getID());
 
             int rows = SQLcc.executeUpdate();
 
@@ -421,7 +427,7 @@ public class DBController{
 
         try{
             PreparedStatement SQLin = conn.prepareStatement(SQL_statement);
-            SQLin.setString(1, Integer.toString(thisUser.getID()));
+            SQLin.setInt(1, thisUser.getID());
 
             ResultSet foundIn = SQLin.executeQuery();
 
@@ -554,7 +560,7 @@ public class DBController{
 
         try{
             PreparedStatement SQLin = conn.prepareStatement(SQL_statement);
-            SQLin.setString(1, Integer.toString(thisUser.getID()));
+            SQLin.setInt(1, thisUser.getID());
 
             ResultSet foundIn = SQLin.executeQuery();
 
@@ -596,13 +602,13 @@ public class DBController{
     }
 
     ////----MISC----////
-    public void fetchProductInfo(List<Object> purchaseCache, String product_ID, int goodType, int quantity){
+    public void fetchProductInfo(List<Object> purchaseCache, int product_ID, int goodType, int quantity){
         //Good is an item
         if(goodType == 1){
             String SQL_statement = "SELECT name, price, stock FROM goods natural join item WHERE product_ID = ?";
             try{
                 PreparedStatement SQLproduct = conn.prepareStatement(SQL_statement);
-                SQLproduct.setString(1, product_ID);
+                SQLproduct.setInt(1, product_ID);
 
                 ResultSet countSQL = SQLproduct.executeQuery();
 
@@ -629,7 +635,7 @@ public class DBController{
             String SQL_statement = "SELECT name, price FROM goods natural join service WHERE product_ID = ?";
             try{
                 PreparedStatement SQLproduct = conn.prepareStatement(SQL_statement);
-                SQLproduct.setString(1, product_ID);
+                SQLproduct.setInt(1, product_ID);
 
                 ResultSet countSQL = SQLproduct.executeQuery();
 
@@ -651,7 +657,7 @@ public class DBController{
     }
 
     public void fetchReportOne(){
-        String SQL_statement = "SELECT p.customer_ID, i.first_name, i.last_name, ROUND(avg(p.price), 2) "
+        String SQL_statement = "SELECT p.customer_ID, i.first_name, i.last_name, ROUND(avg(p.price::DECIMAL), 2) "
                              + "FROM purchase p join individual i on customer_ID = ID "
                              + "GROUP BY i.first_name, i.last_name, p.customer_ID "
                              + "ORDER by customer_ID";
@@ -684,10 +690,10 @@ public class DBController{
     }
 
     public void fetchReportTwo(){
-        String SQL_statement = "SELECT product_ID, name, vendor, count(*) "
-                             + "FROM purchase natural join goods "
-                             + "GROUP BY name, vendor, product_ID "
-                             + "ORDER by product_ID";
+        String SQL_statement = "SELECT g.product_ID, g.name, g.vendor, count(*) "
+                             + "FROM purchase p JOIN goods g ON p.product_ID = g.product_ID "
+                             + "GROUP BY g.name, g.vendor, g.product_ID "
+                             + "ORDER by g.product_ID";
 
         try{
             PreparedStatement SQLin = conn.prepareStatement(SQL_statement);
@@ -702,7 +708,7 @@ public class DBController{
 
             do{
                 System.out.println("============================================");
-                System.out.println("Product ID: " + foundIn.getString(1));
+                System.out.println("Product ID: " + foundIn.getInt(1));
                 System.out.println("Product Name: " + foundIn.getString(2));
                 System.out.println("Vendor: " + foundIn.getString(3));
                 System.out.println("Total Purchases - All Time: " + foundIn.getInt(4));

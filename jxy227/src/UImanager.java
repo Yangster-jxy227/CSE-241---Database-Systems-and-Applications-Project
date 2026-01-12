@@ -1,11 +1,11 @@
 //Interface for manager
-import java.io.Console;
+//import java.io.Console;
 import java.util.Scanner;
 
 public class UImanager extends UIcustomer{
     
-    UImanager(User fetchedUser, Console appConsole, Scanner appScan, DBController db, DBcatalog db_cat){
-        super(fetchedUser, appConsole, appScan, db, db_cat);
+    UImanager(User fetchedUser, Scanner appScan, DBController db, DBcatalog db_cat){
+        super(fetchedUser, appScan, db, db_cat);
     }
 
     @Override
